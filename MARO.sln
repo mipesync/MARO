@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{7E2F5939-AFAA-4365-B1C8-184027A1F3C5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{A79272B9-42FC-4148-9EC6-B1655C7F8CFA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{12F7279A-D83A-44B2-BEA2-EF61952C47AB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{50F70BC8-C87C-4031-BD7C-FA58F6323FBD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MARO.Domain", "MARO.Domain\MARO.Domain.csproj", "{E67A485C-D087-4F43-9B22-54BD7E9ACFE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MARO.Application", "MARO.Application\MARO.Application.csproj", "{7CEAB9C4-4019-41F6-AB0C-8CD677C57311}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MARO.Persistence", "MARO.Persistence\MARO.Persistence.csproj", "{FE020183-F69F-466C-A338-812F05BE73F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MARO.API", "MARO.API\MARO.API.csproj", "{67941442-8E55-4C11-B2A0-7C79EDEAE4CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E67A485C-D087-4F43-9B22-54BD7E9ACFE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E67A485C-D087-4F43-9B22-54BD7E9ACFE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E67A485C-D087-4F43-9B22-54BD7E9ACFE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E67A485C-D087-4F43-9B22-54BD7E9ACFE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CEAB9C4-4019-41F6-AB0C-8CD677C57311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CEAB9C4-4019-41F6-AB0C-8CD677C57311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CEAB9C4-4019-41F6-AB0C-8CD677C57311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CEAB9C4-4019-41F6-AB0C-8CD677C57311}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE020183-F69F-466C-A338-812F05BE73F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE020183-F69F-466C-A338-812F05BE73F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE020183-F69F-466C-A338-812F05BE73F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE020183-F69F-466C-A338-812F05BE73F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67941442-8E55-4C11-B2A0-7C79EDEAE4CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67941442-8E55-4C11-B2A0-7C79EDEAE4CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67941442-8E55-4C11-B2A0-7C79EDEAE4CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67941442-8E55-4C11-B2A0-7C79EDEAE4CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E67A485C-D087-4F43-9B22-54BD7E9ACFE7} = {7E2F5939-AFAA-4365-B1C8-184027A1F3C5}
+		{7CEAB9C4-4019-41F6-AB0C-8CD677C57311} = {7E2F5939-AFAA-4365-B1C8-184027A1F3C5}
+		{FE020183-F69F-466C-A338-812F05BE73F7} = {A79272B9-42FC-4148-9EC6-B1655C7F8CFA}
+		{67941442-8E55-4C11-B2A0-7C79EDEAE4CD} = {12F7279A-D83A-44B2-BEA2-EF61952C47AB}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ACBB3912-F0DC-4C06-8EB5-1ECE4DA2F123}
+	EndGlobalSection
+EndGlobal
