@@ -1,4 +1,4 @@
-﻿namespace MARO.Application.Models
+﻿namespace MARO.Application.Aggregate.Models
 {
     public class TokenResult
     {

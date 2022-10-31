@@ -1,4 +1,4 @@
-﻿using MARO.Application.Models;
+﻿using MARO.Application.Aggregate.Models;
 using MARO.Domain;
 
 namespace MARO.Application.Interfaces

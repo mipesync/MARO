@@ -1,6 +1,6 @@
 ﻿using MARO.API;
+using MARO.Application.Aggregate.Models;
 using MARO.Application.Interfaces;
-using MARO.Application.Models;
 using MARO.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;

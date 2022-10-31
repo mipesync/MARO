@@ -11,6 +11,7 @@ namespace MARO.Domain
         public DateTime DateOfCreation { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
+        public string? PhoneConfirmationCode { get; set; }
 
         public IEnumerable<Criterion>? Criteria { get; set; }
         public IEnumerable<UserCriteria>? UserCriteria { get; set; }

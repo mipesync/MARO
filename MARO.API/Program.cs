@@ -1,4 +1,5 @@
 ﻿using MARO.API;
+using MARO.Application.Aggregate.Models;
 using MARO.Application.Interfaces;
 using MARO.Application.Services;
 using MARO.Domain;
@@ -8,17 +9,33 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration["PostgreSQL"];
+var connectionString = builder.Configuration.GetConnectionString("PostgreSQL");
+Log.Information(connectionString);
+
 builder.Services.AddDbContext<MARODbContext>(options =>
 {
     options.UseNpgsql(connectionString, p =>
     {
         p.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
     });
+});
+
+builder.Services.AddPersistence(new EmailSenderOptions
+{
+    Name = "MARO - карта ВДНХ",
+    Host = builder.Configuration["Email:Host"],
+    Port = Convert.ToInt32(builder.Configuration["Email:Port"]),
+    Username = builder.Configuration["Email:Username"],
+    Password = builder.Configuration["Email:Password"]
+}, new SmsSenderOptions
+{
+    Email = builder.Configuration["Sms:Email"],
+    APIKey = builder.Configuration["Sms: APIKey"]
 });
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -124,7 +141,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

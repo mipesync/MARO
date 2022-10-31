@@ -7,7 +7,9 @@ namespace MARO.API.Controllers
     [Route("api/[controller]")]
     public class BaseController : Controller
     {
-        protected string UserId => HttpContext.User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)!.Value;
+        protected string UserId => !User.Identity!.IsAuthenticated
+            ? String.Empty
+            : User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
         protected string UrlRaw => $"{Request.Scheme}://{Request.Host}";
     }
 }
