@@ -1,8 +1,0 @@
-version: '3.4'
-
-services:
-  maro.api:
-    image: ${DOCKER_REGISTRY-}maroapi
-    build:
-      context: .
-      dockerfile: MARO.API/Dockerfile
