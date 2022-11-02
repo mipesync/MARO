@@ -1,14 +1,16 @@
-﻿namespace MARO.Domain
+﻿using System.Text.Json.Serialization;
+
+namespace MARO.Domain
 {
     public class Criterion
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public int ParentId { get; set; }
 
-        public Criterion? Parent { get; set; }
-        public IEnumerable<Criterion>? Children { get; set; }
+        public IEnumerable<CriterionItem>? Children { get; set; }
+        [JsonIgnore]
         public IEnumerable<User>? Users { get; set; }
+        [JsonIgnore]
         public IEnumerable<UserCriteria>? UserCriteria { get; set; }
     }
 }

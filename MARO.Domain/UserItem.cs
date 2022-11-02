@@ -2,14 +2,14 @@
 
 namespace MARO.Domain
 {
-    public class UserCriteria
+    public class UserItem
     {
         public string UserId { get; set; } = null!;
-        public int CriterionId { get; set; }
+        public int CriterionItemId { get; set; }
 
         [JsonIgnore]
         public User User { get; set; } = null!;
         [JsonIgnore]
-        public Criterion Criterion { get; set; } = null!;
+        public CriterionItem CriterionItem { get; set; } = null!;
     }
 }

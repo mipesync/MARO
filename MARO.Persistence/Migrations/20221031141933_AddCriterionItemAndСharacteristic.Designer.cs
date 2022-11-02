@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MARO.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MARO.Persistence.Migrations
 {
     [DbContext(typeof(MARODbContext))]
-    partial class MARODbContextModelSnapshot : ModelSnapshot
+    [Migration("20221031141933_AddCriterionItemAndСharacteristic")]
+    partial class AddCriterionItemAndСharacteristic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -110,14 +112,9 @@ namespace MARO.Persistence.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CriterionId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("CriterionItems", (string)null);
 
@@ -422,21 +419,6 @@ namespace MARO.Persistence.Migrations
                     b.ToTable("UserCriteria", (string)null);
                 });
 
-            modelBuilder.Entity("MARO.Domain.UserItem", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("CriterionItemId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("UserId", "CriterionItemId");
-
-                    b.HasIndex("CriterionItemId");
-
-                    b.ToTable("UserItems", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -465,15 +447,15 @@ namespace MARO.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "595739b1-140a-4e5a-b472-fd4895e547a3",
-                            ConcurrencyStamp = "3c060337-7c6b-4921-b82c-4c9cf8bcc1a7",
+                            Id = "b1b990f5-251d-4a0e-9567-cf2810176f3d",
+                            ConcurrencyStamp = "8983d5ad-414e-42fe-9152-75d7d45174c0",
                             Name = "user",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "e88c2716-9cdb-4415-a358-ce61b371698e",
-                            ConcurrencyStamp = "26797ffb-2a4b-46fb-a7f1-e81b5ba0b76c",
+                            Id = "b122a285-fb65-4ca6-b95b-4dd30aa4f7a7",
+                            ConcurrencyStamp = "b1d35655-9634-4504-9eb6-2e15ee3424a5",
                             Name = "guest",
                             NormalizedName = "GUEST"
                         });
@@ -612,10 +594,6 @@ namespace MARO.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MARO.Domain.User", null)
-                        .WithMany("CriterionItems")
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Criterion");
                 });
 
@@ -634,25 +612,6 @@ namespace MARO.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Criterion");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MARO.Domain.UserItem", b =>
-                {
-                    b.HasOne("MARO.Domain.CriterionItem", "CriterionItem")
-                        .WithMany("UserItems")
-                        .HasForeignKey("CriterionItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MARO.Domain.User", "User")
-                        .WithMany("UserItems")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CriterionItem");
 
                     b.Navigation("User");
                 });
@@ -715,18 +674,9 @@ namespace MARO.Persistence.Migrations
                     b.Navigation("UserCriteria");
                 });
 
-            modelBuilder.Entity("MARO.Domain.CriterionItem", b =>
-                {
-                    b.Navigation("UserItems");
-                });
-
             modelBuilder.Entity("MARO.Domain.User", b =>
                 {
-                    b.Navigation("CriterionItems");
-
                     b.Navigation("UserCriteria");
-
-                    b.Navigation("UserItems");
                 });
 #pragma warning restore 612, 618
         }

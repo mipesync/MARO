@@ -7,7 +7,6 @@ namespace MARO.Persistence.Services
 {
     public class EmailSender : IEmailSender
     {
-        public string Email { get; set; } = null!;
         public string To { get; set; } = null!;
         public string From { get; set; } = null!;
         public string Message { get; set; } = null!;
@@ -25,7 +24,7 @@ namespace MARO.Persistence.Services
             var emailMessage = new MimeMessage();
 
             emailMessage.From.Add(new MailboxAddress(Options.Name, Options.Username));
-            emailMessage.To.Add(new MailboxAddress("", Email));
+            emailMessage.To.Add(new MailboxAddress("", To));
             emailMessage.Subject = Subject;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {

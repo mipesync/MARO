@@ -1,4 +1,4 @@
-﻿namespace MARO.API.Models
+﻿namespace MARO.Application.Aggregate.Models.ResponseModels
 {
     public class LoginResponseModel
     {

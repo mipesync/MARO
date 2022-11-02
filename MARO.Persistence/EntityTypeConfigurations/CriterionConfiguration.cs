@@ -15,6 +15,23 @@ namespace MARO.Persistence.EntityTypeConfigurations
             builder.Property(u => u.Name)
                 .HasMaxLength(32)
                 .IsRequired();
+
+            builder.HasData(
+                new Criterion
+                {
+                    Id = 1,
+                    Name = "wishes"
+                },
+                new Criterion
+                {
+                    Id = 2,
+                    Name = "pastime"
+                },
+                new Criterion
+                {
+                    Id = 3,
+                    Name = "characteristics"
+                });
         }
     }
 }

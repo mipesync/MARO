@@ -2,7 +2,6 @@
 using MARO.Application.Aggregate.Models;
 using MARO.Application.Interfaces;
 using MARO.Domain;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -14,8 +13,7 @@ namespace MARO.Application.Services
     {
         public Task<TokenResult> CreateAccessTokenAsync(User user, string role)
         {
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim(ClaimTypes.Role, role) };
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim(ClaimTypes.Role, role) };
 
             var expires = new JwtOptions().EXPIRES;
 

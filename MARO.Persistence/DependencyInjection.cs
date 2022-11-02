@@ -20,6 +20,8 @@ namespace MARO.Persistence
                 return new SmsSender(_smsSenderOptions);
             });
 
+            _services.AddTransient<IMARODbContext, MARODbContext>();
+
             return _services;
         }
     }

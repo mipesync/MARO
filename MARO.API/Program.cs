@@ -1,4 +1,5 @@
 ﻿using MARO.API;
+using MARO.Application;
 using MARO.Application.Aggregate.Models;
 using MARO.Application.Interfaces;
 using MARO.Application.Services;
@@ -25,18 +26,22 @@ builder.Services.AddDbContext<MARODbContext>(options =>
     });
 });
 
-builder.Services.AddPersistence(new EmailSenderOptions
-{
-    Name = "MARO - карта ВДНХ",
-    Host = builder.Configuration["Email:Host"],
-    Port = Convert.ToInt32(builder.Configuration["Email:Port"]),
-    Username = builder.Configuration["Email:Username"],
-    Password = builder.Configuration["Email:Password"]
-}, new SmsSenderOptions
-{
-    Email = builder.Configuration["Sms:Email"],
-    APIKey = builder.Configuration["Sms: APIKey"]
-});
+builder.Services.AddApplication();
+builder.Services.AddPersistence(
+    new EmailSenderOptions
+    {
+        Name = "MARO - карта ВДНХ",
+        Host = builder.Configuration["Email:Host"],
+        Port = Convert.ToInt32(builder.Configuration["Email:Port"]),
+        Username = builder.Configuration["Email:Username"],
+        Password = builder.Configuration["Email:Password"]
+    }, 
+
+    new SmsSenderOptions
+    {
+        Email = builder.Configuration["Sms:Email"],
+        APIKey = builder.Configuration["Sms: APIKey"]
+    });
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
