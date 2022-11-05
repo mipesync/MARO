@@ -1,9 +1,11 @@
-﻿using MARO.API.Models;
+﻿using MARO.API.Hubs;
+using MARO.API.Models;
 using MARO.Application.Aggregate.Models.DTOs;
 using MARO.Application.Common.Exceptions;
 using MARO.Application.Repository.GroupRepo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace MARO.API.Controllers
@@ -13,11 +15,13 @@ namespace MARO.API.Controllers
     {
         private readonly IGroupRepository _groupRepository;
         private readonly IWebHostEnvironment _environment;
+        private readonly IHubContext<MapsHub> _hubContext;
 
-        public GroupController(IGroupRepository groupRepository, IWebHostEnvironment environment)
+        public GroupController(IGroupRepository groupRepository, IWebHostEnvironment environment, IHubContext<MapsHub> hubContext)
         {
             _groupRepository = groupRepository;
             _environment = environment;
+            _hubContext = hubContext;
         }
 
         /// <summary>
@@ -50,6 +54,9 @@ namespace MARO.API.Controllers
                 var result = await _groupRepository.CreateGroup(model.UserId, _environment.WebRootPath, model.Host);
 
                 result.QRLink = result.QRLink.Insert(0, UrlRaw);
+
+                await _hubContext.Groups.AddToGroupAsync(model.UserId.ToString(), result.GroupId);
+                await _hubContext.Clients.Groups(result.GroupId).SendAsync("Notify", $"{model.UserId} создал группу");
 
                 return Ok(result);
             }
@@ -91,6 +98,9 @@ namespace MARO.API.Controllers
                 if (model.UserId == Guid.Empty) return BadRequest(new Error { Message = "Поле UserId обязательно" });
 
                 await _groupRepository.JoinGroup(model.GroupId, model.UserId);
+
+                await _hubContext.Groups.AddToGroupAsync(model.UserId.ToString(), model.GroupId.ToString());
+                await _hubContext.Clients.Groups(model.GroupId.ToString()).SendAsync("Notify", $"{model.UserId} присоединился к группе");
 
                 return Ok();
             }
