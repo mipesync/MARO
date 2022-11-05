@@ -10,6 +10,7 @@ namespace MARO.Application.Interfaces
         DbSet<UserCriteria> UserCriteria { get; set; }
         DbSet<UserItem> UserItems { get; set; }
         DbSet<CriterionItem> CriterionItems { get; set; }
+        DbSet<Group> Groups { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }

@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
-namespace MARO.Application.Services
+namespace MARO.API.Services
 {
     public class TokenManager : ITokenManager
     {

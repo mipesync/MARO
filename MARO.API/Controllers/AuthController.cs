@@ -1,13 +1,13 @@
-﻿using AutoMapper;
-using MARO.API.Models;
+﻿using MARO.API.Models;
 using MARO.Application.Aggregate.Models.DTOs;
 using MARO.Application.Aggregate.Models.ResponseModels;
 using MARO.Application.Common.Exceptions;
 using MARO.Application.Interfaces;
-using MARO.Application.Repository;
+using MARO.Application.Repository.AuthRepo;
 using MARO.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using System.Security.Claims;
 
@@ -19,25 +19,49 @@ namespace MARO.API.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<AuthController> _logger;
         private readonly ITokenManager _tokenManager;
-        private readonly IEmailSender _emailSender;
         private readonly IAuthRepository _authRepository;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AuthController> logger, ITokenManager tokenManager, IEmailSender emailSender, IAuthRepository authRepository)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AuthController> logger, ITokenManager tokenManager, IAuthRepository authRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _tokenManager = tokenManager;
-            _emailSender = emailSender;
             _authRepository = authRepository;
         }
+        /// <summary>
+        /// Аутентификация пользователя
+        /// </summary>
+        /// <remarks> 
+        /// Выдача токена доступа и, если "запомнить меня" = true, выдача токена обновления. Пример запроса:
+        /// 
+        ///     POST: /api/auth/login
+        ///     {
+        ///         "arg": "user@example.com" (или "71234567890"),
+        ///         "password": "Abcd_123",
+        ///         "rememberMe": true,
+        ///         "returnUrl": "http://example.com/catalog"
+        ///     }
+        /// </remarks>
+        /// <param name="model"></param>
+        /// <returns>Возврат: <see cref="LoginResponseModel"/></returns>
+        /// <response code="400">Некорректные данные</response>
+        /// <response code="400">Неудачная попытка входа</response>
+        /// <response code="404">Пользователь не найден</response>
+        /// <response code="403">Аккаунт не подтверждён</response>
+        /// <response code="403">Аккаунт заблокирован</response>
+        /// <response code="200">Удачно</response>
 
         [HttpPost("login")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(LoginResponseModel))]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
+        [SwaggerResponse(statusCode: StatusCodes.Status403Forbidden, type: typeof(Error))]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
         public async Task<IActionResult> Login(LoginDto model)
         {
             if (!ModelState.IsValid) return BadRequest(new Error { Message = "Некорректные данные" });
 
-            var user = await _userManager.FindByNameAsync(model.Username);
+            var user = await _userManager.FindByNameAsync(model.Arg);
 
             if (user == null) return NotFound(new Error { Message = "Пользователь не найден" });
 
@@ -53,7 +77,7 @@ namespace MARO.API.Controllers
             {
                 _logger.LogInformation($"UserID: {UserId}. Вошёл в систему");
 
-                var accessToken = await _tokenManager.CreateAccessTokenAsync(user, _userManager.GetRolesAsync(user).Result.FirstOrDefault()!);
+                var accessToken = await _tokenManager.CreateAccessTokenAsync(user,  _userManager.GetRolesAsync(user).Result.FirstOrDefault()!);
 
                 user.LockoutEnd = null;
                 user.LockoutEnabled = false;
@@ -96,11 +120,38 @@ namespace MARO.API.Controllers
 
                 await _userManager.UpdateAsync(user);
 
-                return BadRequest(new Error { Message = "Неудачная попытка входа" });
+                return BadRequest(new Error { Message = "Неправильный логин или пароль" });
             }
         }
 
+        /// <summary>
+        /// Регистрация пользователя
+        /// </summary>
+        /// <remarks>
+        /// Пароль должен состоять не менее чем из 8 символов, содержать буквенно-цифровые символы и символы в верхнем регистре.
+        /// Клиент должен обязательно содержать страницу ".../confirm". Пример: http://example.com/confirm_email
+        /// Пример запроса:
+        /// 
+        ///     POST: /api/auth/register
+        ///     {
+        ///         "arg": "user@example.com" (или "71234567890"),
+        ///         "password": "Abcd_123",
+        ///         "host": "http://example.com"
+        ///         "returnUrl": "http://example.com/catalog"
+        ///     }
+        /// </remarks>
+        /// <param name="model"></param>
+        /// <returns>Возврат <see cref="RegisterResponseModel"/></returns>
+        /// <response code="400">Некорректные данные</response>
+        /// <response code="400">Если пользователь уже существует</response>
+        /// <response code="400">Что-то пошло не так</response>
+        /// <response code="200">Удачно</response>
+        /// <response code="404">Роль не существует</response>
+
         [HttpPost("register")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(RegisterResponseModel))]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
         public async Task<IActionResult> Register(RegisterDto model)
         {
             try
@@ -109,12 +160,13 @@ namespace MARO.API.Controllers
 
                 if (model.Arg.All(u => char.IsDigit(u)))
                 {
-                    //TODO: На релизе убрать из Ok() параметры
-                    return Ok(await _authRepository.PhoneForgotPassword(model.Arg));
+                    //TODO: На релизе оставить userId
+                    var result = await _authRepository.PhoneRegister(model.Arg, model.Password, model.ReturnUrl!);
+                    return Ok(new { userId = result[0], code = result[1] });
                 }
                 else if (model.Arg.Contains('@'))
                 {
-                    await _authRepository.EmailForgotPassword(model.Arg, UrlRaw);
+                    await _authRepository.EmailRegister(model.Arg, model.Password, model.Host, model.ReturnUrl!);
                     return Ok();
                 }
 
@@ -130,20 +182,43 @@ namespace MARO.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Подтверждение аккаунта
+        /// </summary>
+        /// <remarks>
+        /// Пример запроса:
+        /// 
+        ///     POST: /api/auth/confirm
+        ///     {
+        ///         "userId": "user@example.com",
+        ///         "code": "your code",
+        ///         "returnUrl": "http://example.com/catalog"
+        ///     }
+        /// </remarks>
+        /// <returns>Возврат <see cref="ConfirmResponseModel"/></returns>
+        /// <response code="400">Параметры UserId и Code обязательны</response>
+        /// <response code="400">Что-то пошло не так</response>
+        /// <response code="404">Пользователь не найден</response>
+        /// <response code="200">Удачно</response>
+        /// <response code="400">Ошибка подтверждения аккаунта</response>
+
         [HttpPost("confirm")]
-        public async Task<IActionResult> Confirm(string userId, string code, string? returnUrl)
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(ConfirmResponseModel))]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
+        public async Task<IActionResult> Confirm(ConfirmDto model)
         {
             try
             {
-                if (userId == null || code == null) return BadRequest(new Error { Message = "Параметры \"UserId\" и \"Code\" обязательны!" });
+                if (model.UserId == Guid.Empty || model.Code == null) return BadRequest(new Error { Message = "Параметры UserId и Code обязательны!" });
 
-                if (code.Length == 6)
+                if (model.Code.Length == 6)
                 {
-                    return Ok(await _authRepository.PhoneConfirm(userId, code, returnUrl));
+                    return Ok(await _authRepository.PhoneConfirm(model.UserId.ToString(), model.Code, model.ReturnUrl));
                 }
-                else if (code.Length > 6)
+                else if (model.Code.Length > 6)
                 {
-                    return Ok(await _authRepository.EmailConfirm(userId, code, returnUrl));
+                    return Ok(await _authRepository.EmailConfirm(model.UserId.ToString(), model.Code, model.ReturnUrl));
                 }
 
                 return BadRequest(new Error { Message = "Что-то пошло не так..." });
@@ -158,22 +233,40 @@ namespace MARO.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Забыл пароль
+        /// </summary>
+        /// <remarks>
+        /// Отправить код для сброса пароля.
+        /// Клиент должен обязательно содержать страницу ".../reset-password ". Пример: http://example.com/reset_password 
+        /// Пример запроса: 
+        /// 
+        ///     GET: /api/auth/forgot_password?arg=user@example.com&amp;host=http://emxaple.com
+        /// </remarks>
+        /// <param name="arg">Адрес электронной почты или номер телефона пользователя, на который будет отправлено письмо с кодом подтверждения</param>
+        /// <param name="host">Хост клиента, с которого идёт запрос</param>
+        /// <response code="400">Некорректные данные</response>
+        /// <response code="400">Если пользователь не существует или аккаунт заблокирован</response>
+        /// <response code="200">Удачно</response>
+
         [HttpGet("forgot_password")]
-        public async Task<IActionResult> ForgotPassword(string arg)
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: null)]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
+        public async Task<IActionResult> ForgotPassword(string arg, string host)
         {
             try
             {
-                if (arg == null) return BadRequest(new Error { Message = "Поле \"Arg\" обязательно!" });
+                if (arg == null) return BadRequest(new Error { Message = "Поле Arg обязательно!" });
 
                 var response = string.Empty;
 
                 if (arg.All(u => char.IsDigit(u)))
                 {
-                    await _authRepository.PhoneForgotPassword(arg);
+                    response = await _authRepository.PhoneForgotPassword(arg);
                 }
                 else if (arg.Contains('@'))
                 {
-                    await _authRepository.EmailForgotPassword(arg, UrlRaw);
+                    await _authRepository.EmailForgotPassword(arg, host);
                 }
 
                 //TODO: На релизе убрать параметры
@@ -183,9 +276,36 @@ namespace MARO.API.Controllers
             {
                 return BadRequest(new Error { Message = e.Message });
             }
+            catch (Exception e)
+            {
+                return BadRequest(new Error { Message = e.Message });
+            }
         }
 
+        /// <summary>
+        /// Сброс пароля
+        /// </summary>
+        /// <remarks>
+        /// Проверяет код подтверждения и сбрасывает пароль. 
+        /// Пример запроса:
+        /// 
+        ///     POST: /api/auth/reset_password
+        ///     {
+        ///         "arg": "user@example.com",
+        ///         "code": "your code",
+        ///         "password": "Abcd_123"
+        ///     }
+        /// </remarks>
+        /// <param name="model"></param>
+        /// <response code="400">Некорректные данные</response>
+        /// <response code="400">Ошибка сброса пароля</response>
+        /// <response code="404">Пользователь не найден</response>
+        /// <response code="200">Удачно</response>
+
         [HttpPost("reset_password")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: null)]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
         {
             try
@@ -206,7 +326,27 @@ namespace MARO.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Обновление токена обновления и доступа
+        /// </summary>
+        /// <remarks>
+        /// Пример запроса:
+        /// 
+        ///     PUT: /api/auth/refresh_token
+        ///     {
+        ///         "access_token": "jwt token",
+        ///         "refresh_token": "your refresh token"
+        ///     }
+        /// </remarks>
+        /// <returns>Возврат <see cref="RefreshTokenResponseModel"/></returns>
+        /// <response code="400">Некорректные данные</response>
+        /// <response code="400">Недействительный токен доступа</response>
+        /// <response code="400">Недействительный токен доступа или обновления</response>
+        /// <response code="200">Удачно</response>
+
         [HttpPut("refresh_token")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(RefreshTokenResponseModel))]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto model)
         {
             if (!ModelState.IsValid) return BadRequest(new Error { Message = "Некорректные данные" });
@@ -243,7 +383,24 @@ namespace MARO.API.Controllers
             });
         }
 
+        /// <summary>
+        /// Отзыв токена обновления
+        /// </summary>
+        /// <remarks>
+        /// Пример запроса:
+        /// 
+        ///     DELETE: /api/auth/revoke/4C2C522E-F785-4EB4-8ED7-260861453330
+        /// </remarks>
+        /// <param name="userId">Id пользователя, у которого нужно отозвать токен обновления</param>
+        /// <response code="200">Удачно</response>
+        /// <response code="400">Ошибка отзыва</response>
+        /// <response code="400">Что-то пошло не так...</response>
+        /// <response code="404">Пользователь не найден</response>
+
         [HttpDelete("revoke/{userId}")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: null)]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
         public async Task<IActionResult> Revoke(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -264,9 +421,44 @@ namespace MARO.API.Controllers
                 return BadRequest(new Error { Message = error.Description });
             }
 
-            return NoContent();
+            return BadRequest(new Error { Message = "Что-то пошло не так..." });
         }
 
+        /// <summary>
+        /// Отзыв токена обновления
+        /// </summary>
+        /// <remarks>
+        /// Пример запроса:
+        /// 
+        ///     POST: /api/auth/login_as_guest
+        /// </remarks>
+        /// <response code="200">Удачно</response>
+        /// <response code="400">Что-то пошло не так...</response>
+        /// <response code="404">Роль не найдена</response>
+
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: null)]
+        [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
+        [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
+        [HttpPost("login_as_guest")]
+        public async Task<IActionResult> LoginAsGuest()
+        {
+            try
+            {
+                var result = await _authRepository.LoginAsGuest();
+
+                return Ok(new LoginAsGuestResponseModel { GuestId = result });
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(new Error { Message = e.Message });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new Error { Message = e.Message });
+            }
+        }
+
+        /*
         [HttpPost("asf")]
         public async Task<IActionResult> ASdsd(string email)
         {
@@ -278,26 +470,6 @@ namespace MARO.API.Controllers
             await _emailSender.SendAsync();
 
             return Ok();
-        }
-
-        /*[HttpGet("get_list")]
-        public async Task<IActionResult> GetList(Guid userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-
-            var criteria = await _dbContext.Criteria.Where(u => u.Users!.Contains(user)).Include(u => u.Children).ToListAsync();
-
-            return Ok(criteria);
-        }
-
-        [HttpPost("add_list")]
-        public async Task<IActionResult> AddList(List<Criterion> criteria, Guid userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-
-            user.Criteria = criteria;
-
-            return Ok(user);
         }*/
     }
 }

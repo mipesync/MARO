@@ -15,6 +15,7 @@ namespace MARO.Persistence
         public DbSet<UserCriteria> UserCriteria { get; set; } = null!;
         public DbSet<UserItem> UserItems { get; set; } = null!;
         public DbSet<CriterionItem> CriterionItems { get; set; } = null!;
+        public DbSet<Group> Groups { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

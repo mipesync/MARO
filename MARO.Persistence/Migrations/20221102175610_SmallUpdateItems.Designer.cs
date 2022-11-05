@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MARO.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MARO.Persistence.Migrations
 {
     [DbContext(typeof(MARODbContext))]
-    partial class MARODbContextModelSnapshot : ModelSnapshot
+    [Migration("20221102175610_SmallUpdateItems")]
+    partial class SmallUpdateItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,19 +122,206 @@ namespace MARO.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CriterionItems", (string)null);
-                });
 
-            modelBuilder.Entity("MARO.Domain.Group", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("QRLink")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Groups", (string)null);
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CriterionId = 1,
+                            Name = "free"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CriterionId = 1,
+                            Name = "fee"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CriterionId = 1,
+                            Name = "walking"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CriterionId = 1,
+                            Name = "electrobus"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CriterionId = 1,
+                            Name = "more_people"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CriterionId = 1,
+                            Name = "less_people"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CriterionId = 1,
+                            Name = "street"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CriterionId = 1,
+                            Name = "room"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CriterionId = 1,
+                            Name = "limited_health"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CriterionId = 2,
+                            Name = "museums_permanentExhibits"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CriterionId = 2,
+                            Name = "museums_temporaryExhibits"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CriterionId = 2,
+                            Name = "museums_excursions"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CriterionId = 2,
+                            Name = "entertaining_festivals"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CriterionId = 2,
+                            Name = "entertaining_concerts"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CriterionId = 2,
+                            Name = "entertaining_attractions"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CriterionId = 2,
+                            Name = "educational_masterClasses"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CriterionId = 2,
+                            Name = "educational_lectures"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CriterionId = 2,
+                            Name = "sports_masterClasses"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CriterionId = 2,
+                            Name = "sports_races"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CriterionId = 2,
+                            Name = "gastronomic_festivals"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CriterionId = 2,
+                            Name = "business_expo"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CriterionId = 2,
+                            Name = "eating_cafe"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            CriterionId = 2,
+                            Name = "eating_restaurant"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            CriterionId = 2,
+                            Name = "eating_streetfood"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            CriterionId = 2,
+                            Name = "walking_fountains"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            CriterionId = 2,
+                            Name = "walking_rocket"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            CriterionId = 2,
+                            Name = "walking_architecture"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            CriterionId = 2,
+                            Name = "walking_ponds"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            CriterionId = 2,
+                            Name = "walking_botanicalGarden"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            CriterionId = 2,
+                            Name = "walking_infoCenter"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            CriterionId = 2,
+                            Name = "walking_mothersRoom"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            CriterionId = 2,
+                            Name = "walking_toilets"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            CriterionId = 2,
+                            Name = "sports_periodicEvents"
+                        });
                 });
 
             modelBuilder.Entity("MARO.Domain.User", b =>
@@ -167,12 +356,6 @@ namespace MARO.Persistence.Migrations
                     b.Property<string>("FullName")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
-
-                    b.Property<string>("GroupId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GroupRoleId")
-                        .HasColumnType("text");
 
                     b.Property<string>("LastName")
                         .HasMaxLength(32)
@@ -210,9 +393,6 @@ namespace MARO.Persistence.Migrations
                     b.Property<DateTime>("RefreshTokenExpiryTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("text");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -225,18 +405,12 @@ namespace MARO.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("GroupRoleId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("Users", (string)null);
                 });
@@ -295,6 +469,22 @@ namespace MARO.Persistence.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "5234f114-4ab3-4c02-97f3-74a991160685",
+                            ConcurrencyStamp = "909a8ffb-9234-4755-8a85-19e8f6d66192",
+                            Name = "user",
+                            NormalizedName = "USER"
+                        },
+                        new
+                        {
+                            Id = "442b043d-dce9-43b7-bbf9-df4b95776fcb",
+                            ConcurrencyStamp = "75ca3528-041f-4115-ba81-dcf5c8add3d7",
+                            Name = "guest",
+                            NormalizedName = "GUEST"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -437,27 +627,6 @@ namespace MARO.Persistence.Migrations
                     b.Navigation("Criterion");
                 });
 
-            modelBuilder.Entity("MARO.Domain.User", b =>
-                {
-                    b.HasOne("MARO.Domain.Group", "Group")
-                        .WithMany("Users")
-                        .HasForeignKey("GroupId");
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "GroupRole")
-                        .WithMany()
-                        .HasForeignKey("GroupRoleId");
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId");
-
-                    b.Navigation("Group");
-
-                    b.Navigation("GroupRole");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("MARO.Domain.UserCriteria", b =>
                 {
                     b.HasOne("MARO.Domain.Criterion", "Criterion")
@@ -557,11 +726,6 @@ namespace MARO.Persistence.Migrations
             modelBuilder.Entity("MARO.Domain.CriterionItem", b =>
                 {
                     b.Navigation("UserItems");
-                });
-
-            modelBuilder.Entity("MARO.Domain.Group", b =>
-                {
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("MARO.Domain.User", b =>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MARO.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MARO.Persistence.Migrations
 {
     [DbContext(typeof(MARODbContext))]
-    partial class MARODbContextModelSnapshot : ModelSnapshot
+    [Migration("20221104211641_AddQRLinkToGroups")]
+    partial class AddQRLinkToGroups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,7 +132,14 @@ namespace MARO.Persistence.Migrations
                     b.Property<string>("QRLink")
                         .HasColumnType("text");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Groups", (string)null);
                 });
@@ -167,12 +176,6 @@ namespace MARO.Persistence.Migrations
                     b.Property<string>("FullName")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
-
-                    b.Property<string>("GroupId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("GroupRoleId")
-                        .HasColumnType("text");
 
                     b.Property<string>("LastName")
                         .HasMaxLength(32)
@@ -224,10 +227,6 @@ namespace MARO.Persistence.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("GroupRoleId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -437,23 +436,22 @@ namespace MARO.Persistence.Migrations
                     b.Navigation("Criterion");
                 });
 
+            modelBuilder.Entity("MARO.Domain.Group", b =>
+                {
+                    b.HasOne("MARO.Domain.User", "User")
+                        .WithOne("Group")
+                        .HasForeignKey("MARO.Domain.Group", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MARO.Domain.User", b =>
                 {
-                    b.HasOne("MARO.Domain.Group", "Group")
-                        .WithMany("Users")
-                        .HasForeignKey("GroupId");
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "GroupRole")
-                        .WithMany()
-                        .HasForeignKey("GroupRoleId");
-
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId");
-
-                    b.Navigation("Group");
-
-                    b.Navigation("GroupRole");
 
                     b.Navigation("Role");
                 });
@@ -559,14 +557,11 @@ namespace MARO.Persistence.Migrations
                     b.Navigation("UserItems");
                 });
 
-            modelBuilder.Entity("MARO.Domain.Group", b =>
-                {
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("MARO.Domain.User", b =>
                 {
                     b.Navigation("CriterionItems");
+
+                    b.Navigation("Group");
 
                     b.Navigation("UserCriteria");
 

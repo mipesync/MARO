@@ -106,7 +106,7 @@ namespace MARO.Persistence.Migrations
                     { 7, 1, "street" },
                     { 8, 1, "room" },
                     { 9, 1, "limited_health" },
-                    { 10, 2, "museus_permanentExhibits" },
+                    { 10, 2, "museums_permanentExhibits" },
                     { 11, 2, "museums_temporaryExhibits" },
                     { 12, 2, "museums_excursions" },
                     { 13, 2, "entertaining_festivals" },

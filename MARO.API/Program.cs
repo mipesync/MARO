@@ -1,8 +1,9 @@
 ﻿using MARO.API;
+using MARO.API.Hubs;
+using MARO.API.Services;
 using MARO.Application;
 using MARO.Application.Aggregate.Models;
 using MARO.Application.Interfaces;
-using MARO.Application.Services;
 using MARO.Domain;
 using MARO.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,7 +16,7 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("PostgreSQL");
+var connectionString = builder.Configuration["PostgreSQL"];
 Log.Information(connectionString);
 
 builder.Services.AddDbContext<MARODbContext>(options =>
@@ -85,6 +86,13 @@ builder.Services.AddControllers();
 
 builder.Services.AddSwaggerGen(config =>
 {
+    config.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "MARO - интерактивная карта с персонализированными маршрутами",
+        Description = "Документация по использованию MARO"
+    });
+
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     config.IncludeXmlComments(xmlPath);
@@ -114,6 +122,8 @@ builder.Services.AddSwaggerGen(config =>
 });
 
 builder.Services.AddTransient<ITokenManager, TokenManager>();
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -156,5 +166,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<MapsHub>("/api/maps");
 
 app.Run();

@@ -1,6 +1,5 @@
 ﻿using MARO.Application.Aggregate.Models.DTOs;
 using MARO.Application.Aggregate.Models.ResponseModels;
-using MARO.Application.Common;
 using MARO.Application.Common.Exceptions;
 using MARO.Application.Interfaces;
 using MARO.Domain;
@@ -11,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Encodings.Web;
 
-namespace MARO.Application.Repository
+namespace MARO.Application.Repository.AuthRepo
 {
     public class AuthRepository : IAuthRepository
     {
@@ -19,16 +18,16 @@ namespace MARO.Application.Repository
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly IMARODbContext _dbContext;
-        //private readonly ILogger _logger;
+        private readonly ILogger<AuthRepository> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AuthRepository(UserManager<User> userManager, IEmailSender emailSender, ISmsSender smsSender, IMARODbContext dbContext, /*ILogger logger,*/ RoleManager<IdentityRole> roleManager)
+        public AuthRepository(UserManager<User> userManager, IEmailSender emailSender, ISmsSender smsSender, IMARODbContext dbContext, ILogger<AuthRepository> logger, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _dbContext = dbContext;
-            //_logger = logger;
+            _logger = logger;
             _roleManager = roleManager;
         }
 
@@ -40,8 +39,8 @@ namespace MARO.Application.Repository
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
 
-            var result = await _userManager.ConfirmEmailAsync(user, code); 
-            
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+
             if (result.Succeeded)
             {
                 return new ConfirmResponseModel
@@ -69,12 +68,12 @@ namespace MARO.Application.Repository
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrl = $"{UrlRaw}/reset_password?email={email}&code={code}";
+            var callbackUrl = $"{UrlRaw}/reset-password?email={email}&code={code}";
 
             _emailSender.Subject = "Сброс пароля";
             _emailSender.To = user.Email;
             //TODO: Вставить HTML
-            _emailSender.Message = $"Сбросить пароль, <a href='{HtmlEncoder.Default.Encode(callbackUrl!)}'>перейдя по этой ссылке</a>.";
+            _emailSender.Message = $"Для сброса пароля перейдите по <a href='{HtmlEncoder.Default.Encode(callbackUrl!)}'>этой ссылке</a>.";
 
             await _emailSender.SendAsync();
         }
@@ -93,24 +92,24 @@ namespace MARO.Application.Repository
 
             var result = await _userManager.CreateAsync(user, password);
 
-            var role = await _roleManager.FindByNameAsync("user");
-
-            if (user == null) throw new NotFoundException(nameof(IdentityRole), "user");
-
-            await _userManager.AddToRoleAsync(user, role!.Name);
-
             if (result.Succeeded)
             {
-                //_logger.LogInformation($"UserID: {user.Id}. Пользователь создал новую учетную запись с паролем");
+                _logger.LogInformation($"UserID: {user.Id}. Пользователь создал новую учетную запись с паролем");
+
+                var role = await _roleManager.FindByNameAsync("user");
+
+                if (role == null) throw new NotFoundException(nameof(IdentityRole), "user");
+
+                await _userManager.AddToRoleAsync(user, role.Name);
 
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var callbackUrl = $"{UrlRaw}/confirm_email?userId={userId}&code={code}&returnUrl={returnUrl}";
+                var callbackUrl = $"{UrlRaw}/confirm?userId={userId}&code={code}&returnUrl={returnUrl}";
 
                 _emailSender.Subject = "Подтвердите Вашу почту";
                 _emailSender.To = arg;
-                _emailSender.Message = $"Подтвердите свою почту, <a href='{HtmlEncoder.Default.Encode(callbackUrl!)}'>перейдя по этой ссылке</a>.";
+                _emailSender.Message = $"Для подтверждения аккаунта перейдите по <a href='{HtmlEncoder.Default.Encode(callbackUrl!)}'>этой ссылке</a>.";
 
                 await _emailSender.SendAsync();
 
@@ -125,6 +124,41 @@ namespace MARO.Application.Repository
             }
 
             throw new Exception("Ошибка регистрации по Email");
+        }
+
+        public async Task<string> LoginAsGuest()
+        {
+            var id = Guid.NewGuid().ToString();
+
+            var user = new User
+            {
+                Id = id,
+                UserName = id
+            };
+
+            var result = await _userManager.CreateAsync(user);
+
+            if (result.Succeeded)
+            {
+
+                var role = await _roleManager.FindByNameAsync("guest");
+
+                if (role == null) throw new NotFoundException(nameof(IdentityRole), "guest");
+
+                await _userManager.AddToRoleAsync(user, role.Name);
+                await _userManager.UpdateAsync(user);
+
+                return user.Id;
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    throw new Exception(error.Description);
+                }
+            }
+
+            throw new Exception("Ошибка выдачи id гостю");
         }
 
         public async Task<ConfirmResponseModel> PhoneConfirm(string userId, string code, string? returnUrl)
@@ -142,7 +176,7 @@ namespace MARO.Application.Repository
 
                 return new ConfirmResponseModel
                 {
-                    Message= "Номер телефона подтверждён",
+                    Message = "Номер телефона подтверждён",
                     ReturnUrl = returnUrl
                 };
             }
@@ -159,7 +193,9 @@ namespace MARO.Application.Repository
 
             user.PhoneConfirmationCode = code;
 
-            await _userManager.UpdateAsync(user);
+            _dbContext.Users.Update(user);
+
+            await _dbContext.SaveChangesAsync(CancellationToken.None);
 
             _smsSender.Message = $"Ваш код для сброса: {code}";
 
@@ -169,10 +205,11 @@ namespace MARO.Application.Repository
             return _smsSender.Message;
         }
 
-        public async Task<string> PhoneRegister(string arg, string password, string returnUrl)
+        public async Task<string[]> PhoneRegister(string arg, string password, string returnUrl)
         {
             var user = new User
             {
+                Id = Guid.NewGuid().ToString(),
                 UserName = arg,
                 PhoneNumber = arg
             };
@@ -183,15 +220,15 @@ namespace MARO.Application.Repository
 
             var result = await _userManager.CreateAsync(user, password);
 
-            var role = _roleManager.Roles.ToList();
+            var role = await _roleManager.FindByNameAsync("user");
 
             if (role == null) throw new NotFoundException(nameof(IdentityRole), null!);
 
-            await _userManager.AddToRoleAsync(user, role.Last().Name);
+            await _userManager.AddToRoleAsync(user, role.Name);
 
             if (result.Succeeded)
             {
-                //_logger.LogInformation($"UserID: {user.Id}. Пользователь создал новую учетную запись с паролем");
+                _logger.LogInformation($"UserID: {user.Id}. Пользователь создал новую учетную запись с паролем");
 
                 var userId = await _userManager.GetUserIdAsync(user);
                 var code = await _userManager.GenerateChangePhoneNumberTokenAsync(user, user.PhoneNumber);
@@ -205,11 +242,11 @@ namespace MARO.Application.Repository
                 /*await _smsSender.SendAsync();
 
                 return Ok(new RegisterResponseModel { UserId = userId, ReturnUrl = model.ReturnUrl! });*/
-                return _smsSender.Message;
+                return new string[] { user.Id, _smsSender.Message };
             }
             else
             {
-                foreach(var error in result.Errors)
+                foreach (var error in result.Errors)
                 {
                     throw new Exception(error.Description);
                 }

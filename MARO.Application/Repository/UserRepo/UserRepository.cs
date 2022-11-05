@@ -1,21 +1,27 @@
-﻿using MARO.Application.Aggregate.Models.DTOs;
+﻿using AutoMapper;
+using MARO.Application.Aggregate.Models.DTOs;
+using MARO.Application.Aggregate.Models.ResponseModels;
 using MARO.Application.Common.Exceptions;
 using MARO.Application.Interfaces;
 using MARO.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace MARO.Application.Repository
+namespace MARO.Application.Repository.UserRepo
 {
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<User> _userManager;
         private readonly IMARODbContext _dbContext;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IMapper _mapper;
 
-        public UserRepository(UserManager<User> userManager, IMARODbContext dbContext)
+        public UserRepository(UserManager<User> userManager, IMARODbContext dbContext, RoleManager<IdentityRole> roleManager, IMapper mapper)
         {
             _userManager = userManager;
             _dbContext = dbContext;
+            _roleManager = roleManager;
+            _mapper = mapper;
         }
 
         public async Task AddUserDetails(UserDetailsDto model, string userId)
@@ -72,6 +78,23 @@ namespace MARO.Application.Repository
             }
 
             return items;
+        }
+
+        public async Task<UserDetailsResponseModel> UserDetails(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null) throw new NotFoundException(nameof(User), userId);
+
+            var role = await _userManager.GetRolesAsync(user);
+
+            if (role.Count() == 0) throw new NotFoundException(nameof(IdentityRole), userId);
+
+            user.Role.Name = role.FirstOrDefault();
+
+            var responseModel = _mapper.Map<UserDetailsResponseModel>(user);
+
+            return responseModel;
         }
     }
 }

@@ -182,7 +182,7 @@ namespace MARO.Persistence.Migrations
                         {
                             Id = 10,
                             CriterionId = 2,
-                            Name = "museus_permanentExhibits"
+                            Name = "museums_permanentExhibits"
                         },
                         new
                         {

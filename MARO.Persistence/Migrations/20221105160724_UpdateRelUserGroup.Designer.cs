@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MARO.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MARO.Persistence.Migrations
 {
     [DbContext(typeof(MARODbContext))]
-    partial class MARODbContextModelSnapshot : ModelSnapshot
+    [Migration("20221105160724_UpdateRelUserGroup")]
+    partial class UpdateRelUserGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,9 +173,6 @@ namespace MARO.Persistence.Migrations
                     b.Property<string>("GroupId")
                         .HasColumnType("text");
 
-                    b.Property<string>("GroupRoleId")
-                        .HasColumnType("text");
-
                     b.Property<string>("LastName")
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
@@ -226,8 +225,6 @@ namespace MARO.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("GroupRoleId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -440,20 +437,14 @@ namespace MARO.Persistence.Migrations
             modelBuilder.Entity("MARO.Domain.User", b =>
                 {
                     b.HasOne("MARO.Domain.Group", "Group")
-                        .WithMany("Users")
+                        .WithMany("User")
                         .HasForeignKey("GroupId");
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "GroupRole")
-                        .WithMany()
-                        .HasForeignKey("GroupRoleId");
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId");
 
                     b.Navigation("Group");
-
-                    b.Navigation("GroupRole");
 
                     b.Navigation("Role");
                 });
@@ -561,7 +552,7 @@ namespace MARO.Persistence.Migrations
 
             modelBuilder.Entity("MARO.Domain.Group", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MARO.Domain.User", b =>
