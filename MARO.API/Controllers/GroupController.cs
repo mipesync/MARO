@@ -28,7 +28,7 @@ namespace MARO.API.Controllers
         /// Создать группу пользователей
         /// </summary>
         /// <remarks>
-        /// Пример запроса:
+        /// SignalR результат: "Notify". Пример запроса:
         /// 
         ///     POST: /api/group/create_group
         ///     {
@@ -74,7 +74,7 @@ namespace MARO.API.Controllers
         /// Присоединиться к существующей группе
         /// </summary>
         /// <remarks>
-        /// Пример запроса:
+        /// SignalR результат: "Notify". Пример запроса:
         /// 
         ///     POST: /api/group/join_group
         ///     {
@@ -142,7 +142,7 @@ namespace MARO.API.Controllers
         }
 
         /// <summary>
-        /// Удалить группу
+        /// Информация о группе
         /// </summary>
         /// <remarks>
         /// Пример запроса:

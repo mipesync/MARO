@@ -425,7 +425,7 @@ namespace MARO.API.Controllers
         }
 
         /// <summary>
-        /// Отзыв токена обновления
+        /// Войти как гость
         /// </summary>
         /// <remarks>
         /// Пример запроса:

@@ -90,7 +90,7 @@ builder.Services.AddSwaggerGen(config =>
     {
         Version = "v1",
         Title = "MARO - интерактивная карта с персонализированными маршрутами",
-        Description = "Документация по использованию MARO"
+        Description = "Документация по использованию MARO. Для обращения к SignalR использовать: /api/maps"
     });
 
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
