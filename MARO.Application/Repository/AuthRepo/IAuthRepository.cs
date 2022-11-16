@@ -10,7 +10,7 @@ namespace MARO.Application.Repository.AuthRepo
         Task<ConfirmResponseModel> EmailConfirm(string userId, string code, string? returnUrl);
         Task<ConfirmResponseModel> PhoneConfirm(string userId, string code, string? returnUrl);
         Task EmailForgotPassword(string email, string UrlRaw);
-        Task<string> PhoneForgotPassword(string phoneNumber);
+        Task PhoneForgotPassword(string phoneNumber);
         Task ResetPassword(ResetPasswordViewModel model);
         Task<string> LoginAsGuest();
     }

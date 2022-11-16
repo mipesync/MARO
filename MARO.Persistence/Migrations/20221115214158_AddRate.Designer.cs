@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MARO.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MARO.Persistence.Migrations
 {
     [DbContext(typeof(MARODbContext))]
-    partial class MARODbContextModelSnapshot : ModelSnapshot
+    [Migration("20221115214158_AddRate")]
+    partial class AddRate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

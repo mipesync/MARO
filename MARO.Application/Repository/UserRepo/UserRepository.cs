@@ -90,9 +90,12 @@ namespace MARO.Application.Repository.UserRepo
 
             if (role.Count() == 0) throw new NotFoundException(nameof(IdentityRole), userId);
 
-            user.Role.Name = role.FirstOrDefault();
+            var groupRole = await _dbContext.Roles.FirstOrDefaultAsync(u => u.Id == user.GroupRoleId);
 
             var responseModel = _mapper.Map<UserDetailsResponseModel>(user);
+
+            responseModel.Role = role.FirstOrDefault()!;
+            responseModel.GroupRole = groupRole?.Name;
 
             return responseModel;
         }

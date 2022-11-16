@@ -81,6 +81,8 @@ namespace MARO.API.Controllers
 
                 user.LockoutEnd = null;
                 user.LockoutEnabled = false;
+                user.RefreshToken = null;
+                user.RefreshTokenExpiryTime = null!;
 
                 if (model.RememberMe)
                 {
@@ -93,10 +95,12 @@ namespace MARO.API.Controllers
 
                 return Ok(new LoginResponseModel
                 {
+                    UserId = user.Id,
                     AccessToken = accessToken.Token,
                     Expires = accessToken.Expires,
                     RefreshToken = user.RefreshToken,
-                    ReturnUrl = model.ReturnUrl
+                    ReturnUrl = model.ReturnUrl,
+                    RefreshTokenExpires = user.RefreshTokenExpiryTime
                 });
             }
             if (result.IsLockedOut)
@@ -160,9 +164,8 @@ namespace MARO.API.Controllers
 
                 if (model.Arg.All(u => char.IsDigit(u)))
                 {
-                    //TODO: На релизе оставить userId
                     var result = await _authRepository.PhoneRegister(model.Arg, model.Password, model.ReturnUrl!);
-                    return Ok(new { userId = result[0], code = result[1] });
+                    return Ok(new { userId = result[0], returnUrl = result[1] });
                 }
                 else if (model.Arg.Contains('@'))
                 {
@@ -258,19 +261,16 @@ namespace MARO.API.Controllers
             {
                 if (arg == null) return BadRequest(new Error { Message = "Поле Arg обязательно!" });
 
-                var response = string.Empty;
-
                 if (arg.All(u => char.IsDigit(u)))
                 {
-                    response = await _authRepository.PhoneForgotPassword(arg);
+                    await _authRepository.PhoneForgotPassword(arg);
                 }
                 else if (arg.Contains('@'))
                 {
                     await _authRepository.EmailForgotPassword(arg, host);
                 }
 
-                //TODO: На релизе убрать параметры
-                return Ok(new {message = response});
+                return Ok();
             }
             catch(ArgumentException e)
             {
@@ -432,11 +432,12 @@ namespace MARO.API.Controllers
         /// 
         ///     POST: /api/auth/login_as_guest
         /// </remarks>
+        /// <returns>Returns <see cref="LoginAsGuestResponseModel"/></returns>
         /// <response code="200">Удачно</response>
         /// <response code="400">Что-то пошло не так...</response>
         /// <response code="404">Роль не найдена</response>
 
-        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: null)]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(LoginAsGuestResponseModel))]
         [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
         [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
         [HttpPost("login_as_guest")]

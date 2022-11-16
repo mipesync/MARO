@@ -35,9 +35,9 @@ namespace MARO.Application.Repository.GroupRepo
 
             if (group == null) throw new NotFoundException(nameof(Group), groupId);
 
-            var role = await _roleManager.FindByNameAsync("group_admin");
+            var role = await _roleManager.FindByNameAsync("group_member");
 
-            if (role == null) throw new NotFoundException(nameof(IdentityRole), "group_admin");
+            if (role == null) throw new NotFoundException(nameof(IdentityRole), "group_member");
 
             user.GroupId = group.Id;
             user.GroupRoleId = role.Id;
@@ -92,6 +92,7 @@ namespace MARO.Application.Repository.GroupRepo
             foreach(var user in group.Users)
             {
                 user.GroupId = null;
+                user.GroupRoleId = null;
             }
 
             _dbContext.Groups.Remove(group);

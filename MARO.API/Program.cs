@@ -27,7 +27,7 @@ builder.Services.AddDbContext<MARODbContext>(options =>
     });
 });
 
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration["QR_Access_Token"]);
 builder.Services.AddPersistence(
     new EmailSenderOptions
     {

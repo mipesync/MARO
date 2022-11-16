@@ -1,4 +1,5 @@
 ﻿using MARO.Domain;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace MARO.Application.Interfaces
@@ -11,6 +12,8 @@ namespace MARO.Application.Interfaces
         DbSet<UserItem> UserItems { get; set; }
         DbSet<CriterionItem> CriterionItems { get; set; }
         DbSet<Group> Groups { get; set; }
+        DbSet<IdentityRole> Roles { get; set; }
+        DbSet<PlaceRating> PlaceRatings { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }

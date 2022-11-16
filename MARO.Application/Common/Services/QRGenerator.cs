@@ -6,11 +6,18 @@ namespace MARO.Application.Common.Services
 {
     public class QRGenerator : IQRGenerator
     {
+        private readonly string _token;
+
+        public QRGenerator(string access_token)
+        {
+            _token = access_token;
+        }
+
         public async Task<string> GenerateAsync(string text, string webRootPath)
         {
             using (var httpClient = new HttpClient()) 
             {
-                var url = "https://api.qr-code-generator.com/v1/create?access-token=-VVvZPysvyWlIxUaJCRMADEBr-QJTPgQTLjSuoHlylD2OXRWqMpCAMQ8gOHaj2ZT";
+                var url = $"https://api.qr-code-generator.com/v1/create?access-token={_token}";
 
                 HttpContent content = new StringContent(JsonSerializer.Serialize(new
                 {

@@ -72,7 +72,7 @@ namespace MARO.Application.Repository.AuthRepo
 
             _emailSender.Subject = "Сброс пароля";
             _emailSender.To = user.Email;
-            //TODO: Вставить HTML
+
             _emailSender.Message = $"Для сброса пароля перейдите по <a href='{HtmlEncoder.Default.Encode(callbackUrl!)}'>этой ссылке</a>.";
 
             await _emailSender.SendAsync();
@@ -183,7 +183,7 @@ namespace MARO.Application.Repository.AuthRepo
             else throw new Exception("Ошибка подтверждения номера телефона");
         }
 
-        public async Task<string> PhoneForgotPassword(string phoneNumber)
+        public async Task PhoneForgotPassword(string phoneNumber)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
 
@@ -199,10 +199,7 @@ namespace MARO.Application.Repository.AuthRepo
 
             _smsSender.Message = $"Ваш код для сброса: {code}";
 
-            //ERROR: НА РЕЛИЗЕ РАСКОМЕНТИТЬ!!!!
-            //await _smsSender.SendAsync();
-
-            return _smsSender.Message;
+            await _smsSender.SendAsync();
         }
 
         public async Task<string[]> PhoneRegister(string arg, string password, string returnUrl)
@@ -237,12 +234,11 @@ namespace MARO.Application.Repository.AuthRepo
 
                 await _userManager.UpdateAsync(user);
 
-                //ERROR: НА РЕЛИЗЕ РАСКОМЕНТИТЬ!!!!
                 _smsSender.Message = $"Ваш код: {code}";
-                /*await _smsSender.SendAsync();
 
-                return Ok(new RegisterResponseModel { UserId = userId, ReturnUrl = model.ReturnUrl! });*/
-                return new string[] { user.Id, _smsSender.Message };
+                await _smsSender.SendAsync();
+
+                return new string[] { user.Id, returnUrl };
             }
             else
             {

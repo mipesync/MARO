@@ -13,6 +13,8 @@ namespace MARO.Application.Aggregate.Models.ResponseModels
         public int Age { get; set; }
         public string Contact { get; set; } = null!;
         public string Role { get; set; } = null!;
+        public string? GroupId { get; set; }
+        public string? GroupRole { get; set; }
 
         public void Mapping(Profile profile)
         {
@@ -23,7 +25,7 @@ namespace MARO.Application.Aggregate.Models.ResponseModels
                 .ForMember(detail => detail.FullName, opt => opt.MapFrom(user => user.FullName))
                 .ForMember(detail => detail.Age, opt => opt.MapFrom(user => user.Age))
                 .ForMember(detail => detail.Contact, opt => opt.MapFrom(user => user.UserName))
-                .ForMember(detail => detail.Role, opt => opt.MapFrom(user => user.Role.Name));
+                .ForMember(detail => detail.GroupId, opt => opt.MapFrom(user => user.GroupId));
         }
     }
 }

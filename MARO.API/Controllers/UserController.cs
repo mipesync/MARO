@@ -1,5 +1,6 @@
 ﻿using MARO.API.Models;
 using MARO.Application.Aggregate.Models.DTOs;
+using MARO.Application.Aggregate.Models.ResponseModels;
 using MARO.Application.Common.Exceptions;
 using MARO.Application.Repository.UserRepo;
 using Microsoft.AspNetCore.Authorization;
@@ -96,13 +97,14 @@ namespace MARO.API.Controllers
         /// <remarks>
         /// Выводит имя, фамилию, возраст, полное имя, контактную информацию, роль на сайте. Пример запроса:
         /// 
-        ///     POST: /api/user/user_details/4C2C522E-F785-4EB4-8ED7-260861453330
+        ///     GET: /api/user/user_details/4C2C522E-F785-4EB4-8ED7-260861453330
         /// </remarks>
+        /// <returns>Returns <see cref="UserDetailsResponseModel"/></returns>
         /// <response code="200">Удачно</response>
         /// <response code="400">Поле UserId обязательно</response>
         /// <response code="404">Пользователь не найден</response>
         /// <response code="404">Роль не найдена</response>
-        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: null)]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(UserDetailsResponseModel))]
         [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
         [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
         [Authorize]
@@ -113,7 +115,7 @@ namespace MARO.API.Controllers
             {
                 if (userId == Guid.Empty) return BadRequest(new {message = "Поле UserId обязательно"});
 
-                var result = await _userRepository.UserDetails(UserId);
+                var result = await _userRepository.UserDetails(userId.ToString());
 
                 return Ok(result);
             }

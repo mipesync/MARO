@@ -1,6 +1,7 @@
 ﻿using MARO.API.Hubs;
 using MARO.API.Models;
 using MARO.Application.Aggregate.Models.DTOs;
+using MARO.Application.Aggregate.Models.ResponseModels;
 using MARO.Application.Common.Exceptions;
 using MARO.Application.Repository.GroupRepo;
 using Microsoft.AspNetCore.Authorization;
@@ -36,12 +37,13 @@ namespace MARO.API.Controllers
         ///         "host": "http://example.com"
         ///     }
         /// </remarks>
+        /// <returns>Returns <see cref="CreateGroupResponseModel"/></returns>
         /// <response code="200">Удачно</response>
         /// <response code="400">Поле UserId обязательно</response>
         /// <response code="400">У пользователя уже есть группа</response>
         /// <response code="404">Пользователь не найден</response>
         /// <response code="404">Роль не найдена</response>
-        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: null)]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(CreateGroupResponseModel))]
         [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
         [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
         [HttpPost("create_group")]
@@ -116,7 +118,7 @@ namespace MARO.API.Controllers
         /// <remarks>
         /// Пример запроса:
         /// 
-        ///     POST: /api/group/delete_group/4C2C522E-F785-4EB4-8ED7-260861453330
+        ///     DELETE: /api/group/delete_group/4C2C522E-F785-4EB4-8ED7-260861453330
         /// </remarks>
         /// <response code="200">Удачно</response>
         /// <response code="400">Поле GroupId обязательно</response>
@@ -147,12 +149,13 @@ namespace MARO.API.Controllers
         /// <remarks>
         /// Пример запроса:
         /// 
-        ///     POST: /api/group/group_details/4C2C522E-F785-4EB4-8ED7-260861453330
+        ///     GET: /api/group/group_details/4C2C522E-F785-4EB4-8ED7-260861453330
         /// </remarks>
+        /// <returns>Returns <see cref="GroupDetailsResponseModel"/></returns>
         /// <response code="200">Удачно</response>
         /// <response code="400">Поле GroupId обязательно</response>
         /// <response code="404">Группа не найдена</response>
-        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: null)]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(GroupDetailsResponseModel))]
         [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(Error))]
         [SwaggerResponse(statusCode: StatusCodes.Status404NotFound, type: typeof(Error))]
         [HttpGet("group_details/{groupId}")]

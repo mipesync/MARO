@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MARO.API.Controllers
 {
-    public class RouteController : BaseController
+    /*public class RouteController : BaseController
     {
         private readonly IRouteRepository _routeRepository;
 
@@ -22,5 +22,5 @@ namespace MARO.API.Controllers
 
             return Ok(routes);
         }
-    }
+    }*/
 }

@@ -10,7 +10,7 @@ namespace MARO.Domain
         public int? Age { get; set; }
         public DateTime DateOfCreation { get; set; }
         public string? RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiryTime { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
         public string? PhoneConfirmationCode { get; set; }
         public string? GroupId { get; set; }
         public string? GroupRoleId { get; set; }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MARO.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MARO.Persistence.Migrations
 {
     [DbContext(typeof(MARODbContext))]
-    partial class MARODbContextModelSnapshot : ModelSnapshot
+    [Migration("20221114212316_RefreshTokenExpiryTimeChanged")]
+    partial class RefreshTokenExpiryTimeChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,22 +135,6 @@ namespace MARO.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Groups", (string)null);
-                });
-
-            modelBuilder.Entity("MARO.Domain.PlaceRating", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PlaceId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Rate")
-                        .HasColumnType("integer");
-
-                    b.HasKey("UserId", "PlaceId");
-
-                    b.ToTable("PlaceRatings", (string)null);
                 });
 
             modelBuilder.Entity("MARO.Domain.User", b =>
@@ -451,17 +437,6 @@ namespace MARO.Persistence.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("Criterion");
-                });
-
-            modelBuilder.Entity("MARO.Domain.PlaceRating", b =>
-                {
-                    b.HasOne("MARO.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MARO.Domain.User", b =>
